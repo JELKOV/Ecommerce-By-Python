@@ -1,0 +1,18 @@
+# 환경 변수 파일 (보안 중요!)
+.env
+
+# Python 캐시 및 가상 환경 폴더
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+
+# 데이터베이스 파일 (로컬 개발 시)
+database.db
+
+# IDE 설정 파일
+.vscode/
+.idea/
+*.iml

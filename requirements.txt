@@ -1,1 +1,5 @@
 # 파이썬 패키지 설치 목록
+python-dotenv~=1.0.1
+Flask~=3.1.0
+Flask-Migrate~=4.1.0
+click~=8.1.8

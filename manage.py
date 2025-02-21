@@ -15,6 +15,7 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Flask 서버 실행
+# Flask CLI 실행
 if __name__ == "__main__":
-    app.run(debug=True)
+    from flask.cli import main
+    main()

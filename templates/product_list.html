@@ -5,6 +5,13 @@
     <title>Title</title>
 </head>
 <body>
-
+    {% for product in products %}
+        <div>
+            <h2>{{ product.name }}</h2>
+            <p>{{ product.description }}</p>
+            <p>가격: {{ product.price }}</p>
+            <a href="{{ url_for('product_routes.product_detail', product_id=product.id) }}">상세보기</a>
+        </div>
+    {% endfor %}
 </body>
 </html>

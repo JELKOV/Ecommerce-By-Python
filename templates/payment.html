@@ -5,6 +5,31 @@
     <title>Title</title>
 </head>
 <body>
+    <form id="payment-form">
+        <input type="hidden" id="order_id" value="12345">
+        <input type="hidden" id="amount" value="50000">
+        <button type="button" onclick="startPayment()">결제하기</button>
+    </form>
 
+    <script>
+    function startPayment() {
+        const orderId = document.getElementById("order_id").value;
+        const amount = document.getElementById("amount").value;
+
+        fetch("/payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId, amount: amount })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.paymentUrl) {
+                window.location.href = data.paymentUrl;
+            } else {
+                alert("결제 요청에 실패했습니다.");
+            }
+        });
+    }
+    </script>
 </body>
 </html>

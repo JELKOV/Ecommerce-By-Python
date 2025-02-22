@@ -5,6 +5,23 @@
     <title>Title</title>
 </head>
 <body>
-
+    <h1>장바구니</h1>
+    {% if cart_items %}
+        <ul>
+            {% for item in cart_items %}
+                <li>
+                    {{ item.product.name }} - {{ item.quantity }}개 (₩{{ item.product.price }})
+                    <form method="POST" action="{{ url_for('cart_routes.remove_from_cart', cart_id=item.id) }}">
+                        <button type="submit">삭제</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <form method="POST" action="{{ url_for('cart_routes.clear_cart') }}">
+            <button type="submit">장바구니 비우기</button>
+        </form>
+    {% else %}
+        <p>장바구니가 비어 있습니다.</p>
+    {% endif %}
 </body>
 </html>

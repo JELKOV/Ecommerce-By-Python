@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from model import db
 from model.product import Product
+from utils.product_api import fetch_product_data
 
 product_routes = Blueprint("product_routes", __name__)
 
@@ -59,3 +60,25 @@ def delete_product(product_id):
     db.session.commit()
     flash("상품이 삭제되었습니다.", "danger")
     return redirect(url_for("product_routes.product_list"))
+
+
+
+@product_routes.route("/fetch-products", methods=["GET"])
+def fetch_and_store_products():
+    """API에서 상품 데이터를 가져와 데이터베이스에 저장"""
+    products = fetch_product_data()
+
+    if not products:
+        return jsonify({"error": "상품 데이터를 불러오지 못했습니다."}), 500
+
+    for item in products:
+        new_product = Product(
+            name=item.get("name"),
+            description=item.get("description"),
+            price=item.get("price"),
+            image_url=item.get("image_url"),
+        )
+        db.session.add(new_product)
+
+    db.session.commit()
+    return jsonify({"message": "상품 데이터가 저장되었습니다!"})

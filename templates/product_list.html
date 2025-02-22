@@ -5,6 +5,9 @@
     <title>Title</title>
 </head>
 <body>
+    <h1>상품 목록</h1>
+    <button onclick="fetchProducts()">API에서 상품 가져오기</button>
+
     {% for product in products %}
         <div>
             <h2>{{ product.name }}</h2>
@@ -13,5 +16,15 @@
             <a href="{{ url_for('product_routes.product_detail', product_id=product.id) }}">상세보기</a>
         </div>
     {% endfor %}
+
+    <script>
+        function fetchProducts() {
+            fetch("/fetch-products")
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error("API 호출 오류:", error));
+        }
+    </script>
+
 </body>
 </html>

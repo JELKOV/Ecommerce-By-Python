@@ -1,0 +1,27 @@
+{% extends "base/layout.html" %}
+
+{% block title %}장바구니 - My Shop{% endblock %}
+
+{% block content %}
+    <h1>장바구니</h1>
+    
+    {% if cart_items %}
+        <ul>
+            {% for item in cart_items %}
+                <li>
+                    <h3>{{ item.product.name }}</h3>
+                    <p>가격: {{ item.product.price }}원</p>
+                    <p>수량: {{ item.quantity }}</p>
+                    <form action="{{ url_for('cart_routes.remove_from_cart', cart_id=item.id) }}" method="POST">
+                        <button type="submit">삭제</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('cart_routes.clear_cart') }}" method="POST">
+            <button type="submit">장바구니 비우기</button>
+        </form>
+    {% else %}
+        <p>장바구니가 비어 있습니다.</p>
+    {% endif %}
+{% endblock %}

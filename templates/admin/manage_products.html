@@ -1,0 +1,42 @@
+{% extends "base/admin_layout.html" %}
+
+{% block title %}관리자 상품 관리{% endblock %}
+
+{% block admin_content %}
+    <h1>관리자 상품 관리</h1>
+
+    <!-- 상품 추가 버튼 -->
+    <a href="{{ url_for('admin_routes.add_product') }}">
+        <button>상품 추가</button>
+    </a>
+
+    <!-- API에서 상품 가져오기 -->
+    <input type="text" id="query" placeholder="검색어 입력">
+    <button onclick="fetchProducts()">API에서 상품 가져오기</button>
+
+    <h2>등록된 상품 목록</h2>
+    <div id="product-list">
+        {% for product in products %}
+            <div class="product-item">
+                <h2>{{ product.name }}</h2>
+                <p>{{ product.description }}</p>
+                <p>가격: {{ product.price }}원</p>
+                <img src="{{ product.image_url }}" width="150">
+
+                <!-- 수정 버튼 -->
+                <a href="{{ url_for('admin_routes.edit_product', product_id=product.id) }}">
+                    <button>수정</button>
+                </a>
+
+                <!-- 삭제 버튼 -->
+                <form action="{{ url_for('admin_routes.delete_product', product_id=product.id) }}" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit">삭제</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

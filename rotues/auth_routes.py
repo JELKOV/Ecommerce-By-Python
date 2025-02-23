@@ -8,6 +8,7 @@ auth_routes = Blueprint("auth_routes", __name__)
 # 회원가입
 @auth_routes.route("/register", methods=["GET", "POST"])
 def register():
+    """사용자 회원가입"""
     if request.method == "POST":
         username = request.form["username"]
         email = request.form["email"]
@@ -27,7 +28,7 @@ def register():
         flash("회원가입이 완료되었습니다. 로그인하세요!", "success")
         return redirect(url_for("auth_routes.login"))
 
-    return render_template("register.html")
+    return render_template("user/register.html")
 
 # 로그인
 @auth_routes.route("/login", methods=["GET", "POST"])
@@ -45,12 +46,12 @@ def login():
         else:
             flash("이메일 또는 비밀번호가 올바르지 않습니다.", "danger")
 
-    return render_template("login.html")
+    return render_template("user/login.html")
 
-# 로그아웃
 @auth_routes.route("/logout")
 @login_required
 def logout():
+    """✅ 사용자 로그아웃"""
     logout_user()
     flash("로그아웃 되었습니다.", "info")
     return redirect(url_for("auth_routes.login"))

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Shop{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- ✅ 네비게이션 바 -->
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('user_routes.home') }}">홈</a></li>
+            <li><a href="{{ url_for('product_routes.product_list') }}">상품 목록</a></li>
+            <li><a href="{{ url_for('cart_routes.view_cart') }}">장바구니</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('auth_routes.logout') }}">로그아웃</a></li>
+            {% else %}
+                <li><a href="{{ url_for('auth_routes.login') }}">로그인</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- ✅ 페이지별 컨텐츠 삽입 -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- ✅ 푸터 -->
+    <footer>
+        <p>&copy; 2025 My Shop. All rights reserved.</p>
+    </footer>
+</body>
+</html>

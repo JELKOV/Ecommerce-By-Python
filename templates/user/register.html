@@ -1,0 +1,20 @@
+{% extends "base/layout.html" %}
+
+{% block title %}회원가입 - My Shop{% endblock %}
+
+{% block content %}
+    <h1>회원가입</h1>
+
+    <form action="{{ url_for('auth_routes.register') }}" method="POST">
+        <label for="username">이름:</label>
+        <input type="text" name="username" required>
+
+        <label for="email">이메일:</label>
+        <input type="email" name="email" required>
+
+        <label for="password">비밀번호:</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">가입하기</button>
+    </form>
+{% endblock %}

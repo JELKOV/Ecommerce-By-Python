@@ -1,0 +1,14 @@
+{% extends "base/layout.html" %}
+
+{% block title %}{{ product.name }} - My Shop{% endblock %}
+
+{% block content %}
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+    <p>가격: {{ product.price }}원</p>
+    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+
+    <form action="{{ url_for('cart_routes.add_to_cart', product_id=product.id) }}" method="POST">
+        <button type="submit">장바구니에 추가</button>
+    </form>
+{% endblock %}

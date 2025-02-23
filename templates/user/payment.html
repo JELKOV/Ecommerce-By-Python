@@ -1,0 +1,17 @@
+{% extends "base/layout.html" %}
+
+{% block title %}결제 페이지{% endblock %}
+
+{% block content %}
+    <h1>결제하기</h1>
+
+    <form id="payment-form">
+        <input type="hidden" id="order_id" value="12345">
+        <input type="hidden" id="amount" value="50000">
+        <button type="button" onclick="startPayment()">결제하기</button>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+{% endblock %}

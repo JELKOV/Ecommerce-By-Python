@@ -14,8 +14,16 @@
             <li><a href="{{ url_for('user_routes.home') }}">홈</a></li>
             <li><a href="{{ url_for('product_routes.product_list') }}">상품 목록</a></li>
             <li><a href="{{ url_for('cart_routes.view_cart') }}">장바구니</a></li>
+
             {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('auth_routes.logout') }}">로그아웃</a></li>
+                {% if current_user.is_admin %}
+                    <li><a href="{{ url_for('admin_routes.admin_dashboard') }}">관리자 대시보드</a></li>
+                    <li><a href="{{ url_for('admin_routes.manage_products') }}">상품 관리</a></li>
+                    <li><a href="{{ url_for('admin_routes.add_product') }}">상품 추가</a></li>
+                    <li><a href="{{ url_for('auth_routes.logout') }}">로그아웃</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth_routes.logout') }}">로그아웃</a></li>
+                {% endif %}
             {% else %}
                 <li><a href="{{ url_for('auth_routes.login') }}">로그인</a></li>
             {% endif %}
@@ -24,13 +32,15 @@
 
     <!-- ✅ 페이지별 컨텐츠 삽입 -->
     <main>
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <!-- ✅ 푸터 -->
     <footer>
         <p>&copy; 2025 My Shop. All rights reserved.</p>
     </footer>
+
+    <!-- ✅ 스크립트 블록 추가 -->
+    {% block scripts %}{% endblock %}
 </body>
 </html>

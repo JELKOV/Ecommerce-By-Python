@@ -26,7 +26,7 @@
             <div class="product-item">
                 <h2>{{ product.name }}</h2>
                 <p>{{ product.description }}</p>
-                <p>가격: {{ product.price }}원</p>
+                <p>가격: {{ product.price|int }}원</p>
                 <img src="{{ product.image_url }}" width="150" alt="상품 이미지">
                 <a href="{{ url_for('product_routes.product_detail', product_id=product.id) }}">상세보기</a>
             </div>

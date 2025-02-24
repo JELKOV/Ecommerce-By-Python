@@ -1,0 +1,14 @@
+{% extends "base/layout.html" %}
+
+{% block title %}관리자 대시보드{% endblock %}
+
+{% block content %}
+    <h1>관리자 대시보드</h1>
+
+    <h2>📊 시스템 개요</h2>
+    <ul>
+        <li>총 등록된 상품: {{ total_products }}</li>
+        <li>총 주문 수: {{ total_orders }}</li>
+        <li>총 사용자 수: {{ total_users }}</li>
+    </ul>
+{% endblock %}

@@ -1,71 +1,51 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from model import db
+from flask_login import login_required, current_user
 from model.product import Product
-from utils.product_api import fetch_naver_products
-from utils.security import check_admin_credentials
+from model.order import Order
+from model.user import User
+from utils.product_api import fetch_naver_products, clean_html
+
 
 # 관리자 관련 기능을 담당하는 Blueprint 생성
 admin_routes = Blueprint("admin_routes", __name__)
 
-def is_admin():
-    """
-    ✅ 관리자 여부 확인 함수
-    - 세션에서 `is_admin` 값이 없거나 False일 경우 관리자 로그인 페이지로 이동
-    - 관리자 권한이 있으면 True 반환
-    """
-    if not session.get("is_admin", False):
+# ✅ 관리자 대시보드
+@admin_routes.route("/admin/dashboard")
+@login_required
+def admin_dashboard():
+    """✅ 관리자 전용 대시보드"""
+    if not current_user.is_admin:
         flash("관리자만 접근 가능합니다.", "danger")
-        return redirect(url_for("admin_routes.admin_login"))
-    return True
+        return redirect(url_for("auth_routes.login"))
 
-# ✅ 관리자 로그인
-@admin_routes.route("/admin/login", methods=["GET", "POST"])
-def admin_login():
-    """
-    ✅ 관리자 로그인 기능
-    - POST 요청 시 입력된 username, password 확인
-    - check_admin_credentials() 함수를 통해 관리자 인증 수행
-    - 인증 성공 시 세션에 `is_admin = True` 설정 후 상품 관리 페이지로 이동
-    - 인증 실패 시 오류 메시지를 표시하고 로그인 페이지로 유지
-    """
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    total_products = Product.query.count()
+    total_orders = Order.query.count() if "Order" in db.metadata.tables else 0
+    total_users = User.query.count()
 
-        if check_admin_credentials(username, password):  # 관리자 계정 확인
-            session["is_admin"] = True
-            flash("관리자로 로그인되었습니다.", "success")
-            return redirect(url_for("admin_routes.manage_products"))  # 관리자 상품 관리 페이지로 이동
-        else:
-            flash("잘못된 관리자 계정입니다.", "danger")
-
-    return render_template("admin/login.html")
-
-# ✅ 관리자 로그아웃
-@admin_routes.route("/admin/logout")
-def admin_logout():
-    """
-    ✅ 관리자 로그아웃
-    - 세션을 초기화하여 관리자 권한을 제거
-    - 로그아웃 후 관리자 로그인 페이지로 이동
-    """
-    session.pop("is_admin", None)
-    flash("로그아웃되었습니다.", "success")
-    return redirect(url_for("admin_routes.admin_login"))
+    return render_template(
+        "admin/admin_dashboard.html",
+        total_products=total_products,
+        total_orders=total_orders,
+        total_users=total_users,
+    )
 
 # ✅ 관리자 상품 관리 페이지 (페이징 적용)
 @admin_routes.route("/admin/manage-products")
+@login_required
 def manage_products():
     """
     ✅ 관리자 전용 상품 관리 페이지
     - 페이징 기능 추가 (한 페이지에 10개씩 표시)
-    - 관리자가 로그인하지 않은 경우 로그인 페이지로 리디렉트
     """
-    is_admin()  # 관리자 체크 (자동 리디렉트)
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
 
     page = request.args.get("page", 1, type=int)  # 페이지 번호 (기본값: 1)
     per_page = 10  # 한 페이지당 표시할 상품 개수
 
+    # ✅ 상품 리스트 가져오기 (페이징 적용)
     products = Product.query.paginate(page=page, per_page=per_page, error_out=False)
 
     return render_template("admin/manage_products.html", products=products)
@@ -78,7 +58,9 @@ def add_product():
     - 상품명, 설명, 가격, 이미지 URL을 입력하여 DB에 저장
     - 저장 완료 후 상품 관리 페이지로 이동
     """
-    is_admin()  # 관리자 체크 (자동 리디렉트)
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
 
     if request.method == "POST":
         name = request.form["name"]
@@ -103,7 +85,9 @@ def edit_product(product_id):
     - 상품명을 포함한 정보 변경 가능
     - 수정 완료 후 상품 관리 페이지로 이동
     """
-    is_admin()  # 관리자 체크 (자동 리디렉트)
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
 
     product = Product.query.get_or_404(product_id)
 
@@ -126,7 +110,9 @@ def delete_product(product_id):
     ✅ 관리자 전용 상품 삭제 기능
     - 특정 상품을 삭제 후 상품 관리 페이지로 이동
     """
-    is_admin()  # 관리자 체크 (자동 리디렉트)
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
 
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
@@ -137,37 +123,36 @@ def delete_product(product_id):
 # ✅ 네이버 쇼핑 API에서 상품 가져오기 (관리자 전용)
 @admin_routes.route("/admin/fetch-products", methods=["GET"])
 def fetch_and_store_products():
-    """
-    ✅ 네이버 쇼핑 API에서 상품 데이터를 가져와 DB에 저장하는 기능 (관리자 전용)
-    - 관리자 로그인 필수
-    - 검색어를 입력받아 해당 상품을 네이버 API에서 가져옴
-    - 이미 존재하는 상품(이미지 URL 중복)은 저장하지 않음
-    """
-    is_admin()  # 관리자 체크 (자동 리디렉트)
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
 
-    query = request.args.get("query", "노트북")  # 검색 키워드 (기본값: 노트북)
-    products = fetch_naver_products(query)  # 네이버 API 호출
+    query = request.args.get("query", "노트북")
+    products = fetch_naver_products(query)
 
     if not products:
-        return jsonify({"error": "상품 데이터를 불러오지 못했습니다."}), 500  # API 실패 시 에러 반환
+        return jsonify({"error": "상품 데이터를 불러오지 못했습니다."}), 500
 
     product_list = []
     for item in products:
-        # ✅ 상품 중복 검사 (이미지 URL 기준)
-        existing_product = Product.query.filter_by(image_url=item.get("image")).first()
+        cleaned_name = item.get("name")  # ✅ 태그 제거 후 상품명 가져오기
+
+        if cleaned_name is None or cleaned_name.strip() == "":
+            print(f"🚨 [DEBUG] 상품명 없음 → 저장 안 함: {item}")
+            continue  # 상품명이 없으면 저장하지 않음
+
+        existing_product = Product.query.filter_by(image_url=item.get("image_url")).first()
         if existing_product:
             continue  # 중복 상품이면 저장하지 않음
 
-        # ✅ 새로운 상품 추가
         new_product = Product(
-            name=item.get("title"),  # 상품명
-            description=item.get("category1", "카테고리 없음"),  # 카테고리 정보
-            price=int(item.get("lprice", 0)),  # 최저가
-            image_url=item.get("image"),  # 이미지 URL
+            name=cleaned_name,
+            description=item.get("description", "카테고리 없음"),
+            price=item.get("price", 0),
+            image_url=item.get("image_url", ""),
         )
         db.session.add(new_product)
 
-        # ✅ 클라이언트에게 반환할 JSON 데이터 생성
         product_list.append({
             "name": new_product.name,
             "description": new_product.description,
@@ -177,4 +162,4 @@ def fetch_and_store_products():
 
     db.session.commit()
 
-    return jsonify({"message": "상품 데이터가 저장되었습니다!", "products": product_list})  # JSON 응답 반환
+    return jsonify({"message": "상품 데이터가 저장되었습니다!", "products": product_list})

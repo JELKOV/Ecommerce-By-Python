@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Flask 앱 생성
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 app.config.from_object(Config)
 
 # 데이터베이스 & 마이그레이션 초기화

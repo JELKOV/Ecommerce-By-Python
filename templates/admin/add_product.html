@@ -1,25 +1,43 @@
 {% extends "base/layout.html" %}
 
-{% block title %}상품 추가{% endblock %}
+{% block title %}🛍 상품 추가{% endblock %}
 
 {% block content %}
-    <h1>상품 추가</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">🛍 상품 추가</h1>
 
-    <form action="{{ url_for('admin_routes.add_product') }}" method="POST">
-        <label for="name">상품명:</label>
-        <input type="text" id="name" name="name" required>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <form action="{{ url_for('admin_routes.add_product') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold">📌 상품명</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
 
-        <label for="description">설명:</label>
-        <textarea id="description" name="description" required></textarea>
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">📝 설명</label>
+                        <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                    </div>
 
-        <label for="price">가격:</label>
-        <input type="number" id="price" name="price" required>
+                    <div class="mb-3">
+                        <label for="price" class="form-label fw-bold">💰 가격</label>
+                        <input type="number" id="price" name="price" class="form-control" required>
+                    </div>
 
-        <label for="image_url">이미지 URL:</label>
-        <input type="text" id="image_url" name="image_url" required>
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label fw-bold">🖼 이미지 URL</label>
+                        <input type="text" id="image_url" name="image_url" class="form-control" required>
+                    </div>
 
-        <button type="submit">상품 추가</button>
-    </form>
+                    <button type="submit" class="btn btn-primary w-100">✅ 상품 추가</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-    <a href="{{ url_for('admin_routes.manage_products') }}">상품 관리 페이지로 이동</a>
+    <div class="text-center mt-3">
+        <a href="{{ url_for('admin_routes.manage_products') }}" class="btn btn-outline-secondary">상품 관리 페이지로 이동</a>
+    </div>
+</div>
 {% endblock %}

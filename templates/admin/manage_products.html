@@ -1,48 +1,77 @@
 {% extends "base/layout.html" %}
 
+{% block title %}🛠 상품 관리{% endblock %}
+
 {% block content %}
-<h1>상품 관리</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">🛠 상품 관리</h1>
 
-<!-- ✅ 상품 검색 및 API 호출 -->
-<div>
-    <input type="text" id="query" placeholder="검색어 입력">
-    <button onclick="fetchProducts()">API에서 상품 가져오기</button>
-</div>
+    <!-- 🔹 API 검색 및 가져오기 -->
+    <div class="d-flex gap-2 mb-4 justify-content-center">
+        <input type="text" id="api-query" class="form-control w-auto" placeholder="🔎 API에서 상품 검색">
+        <button type="button" class="btn btn-success" onclick="fetchProducts()">🔄 API에서 상품 가져오기</button>
+    </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>상품명</th>
-            <th>가격</th>
-            <th>수정</th>
-            <th>삭제</th>
-        </tr>
-    </thead>
-    <tbody id="product-list">
-        {% for product in products.items %}
-        <tr>
-            <td>{{ product.name }}</td>
-            <td>{{ product.price|int }}원</td>
-            <td><a href="{{ url_for('admin_routes.edit_product', product_id=product.id) }}">수정</a></td>
-            <td>
-                <form action="{{ url_for('admin_routes.delete_product', product_id=product.id) }}" method="POST">
-                    <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- 🔹 데이터베이스 검색 및 필터링 -->
+    <form action="{{ url_for('admin_routes.manage_products') }}" method="GET" class="d-flex flex-wrap gap-2 mb-4 justify-content-center">
+        <input type="text" name="query" class="form-control w-auto" placeholder="🔎 DB에서 상품 검색" value="{{ query }}">
+        <input type="number" name="min_price" class="form-control w-auto" placeholder="💰 최소 가격" value="{{ min_price or '' }}">
+        <input type="number" name="max_price" class="form-control w-auto" placeholder="💰 최대 가격" value="{{ max_price or '' }}">
 
-<!-- ✅ 페이징 처리 -->
-<div>
-    {% if products.has_prev %}
-        <a href="{{ url_for('admin_routes.manage_products', page=products.prev_num) }}">이전</a>
-    {% endif %}
-    <span>페이지 {{ products.page }} / {{ products.pages }}</span>
-    {% if products.has_next %}
-        <a href="{{ url_for('admin_routes.manage_products', page=products.next_num) }}">다음</a>
-    {% endif %}
+        <!-- 🔹 카테고리 선택 -->
+        <select name="category" class="form-select w-auto">
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary">🔍 검색</button>
+    </form>
+
+    <!-- 🔹 상품 목록 테이블 -->
+    <div class="table-responsive">
+        <table class="table table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>🛍 상품명</th>
+                    <th>📂 카테고리</th>
+                    <th>💰 가격</th>
+                    <th>✏ 수정</th>
+                    <th>🗑 삭제</th>
+                </tr>
+            </thead>
+            <tbody id="product-list">
+                {% for product in products.items %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td> <!-- 카테고리 (설명) 표시 -->
+                    <td>{{ product.price|int }}원</td>
+                    <td>
+                        <a href="{{ url_for('admin_routes.edit_product', product_id=product.id) }}" class="btn btn-warning btn-sm">✏ 수정</a>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('admin_routes.delete_product', product_id=product.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')">🗑 삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 🔹 페이징 처리 -->
+    <div class="d-flex justify-content-center mt-4">
+        {% if products.has_prev %}
+            <a href="{{ url_for('admin_routes.manage_products', page=products.prev_num, query=query, min_price=min_price, max_price=max_price, category=category) }}" class="btn btn-outline-secondary mx-2">이전</a>
+        {% endif %}
+
+        <span class="align-self-center fw-bold">{{ products.page }} / {{ products.pages }}</span>
+
+        {% if products.has_next %}
+            <a href="{{ url_for('admin_routes.manage_products', page=products.next_num, query=query, min_price=min_price, max_price=max_price, category=category) }}" class="btn btn-outline-secondary mx-2">다음</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 

@@ -3,12 +3,37 @@
 {% block title %}{{ product.name }} - My Shop{% endblock %}
 
 {% block content %}
-    <h1>{{ product.name }}</h1>
-    <p>{{ product.description }}</p>
-    <p>가격: {{ product.price|int }}원</p>
-    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="row g-0">
+                    <!-- 📌 상품 이미지 -->
+                    <div class="col-md-6">
+                        <img src="{{ product.image_url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+                    </div>
 
-    <form action="{{ url_for('cart_routes.add_to_cart', product_id=product.id) }}" method="POST">
-        <button type="submit">장바구니에 추가</button>
-    </form>
+                    <!-- 📌 상품 정보 -->
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ product.name }}</h2>
+                            <p class="card-text text-muted">{{ product.description }}</p>
+                            <p class="fs-4 fw-bold text-primary">💰 {{ product.price|int }}원</p>
+
+                            <!-- 📌 장바구니 추가 버튼 -->
+                            <form action="{{ url_for('cart_routes.add_to_cart', product_id=product.id) }}" method="POST">
+                                <button type="submit" class="btn btn-success w-100">🛒 장바구니에 추가</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔹 뒤로가기 버튼 -->
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('product_routes.product_list') }}" class="btn btn-outline-secondary">🔙 상품 목록으로</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

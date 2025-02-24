@@ -3,46 +3,60 @@
 {% block title %}상품 목록 - My Shop{% endblock %}
 
 {% block content %}
-    <h1>상품 목록</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">🛒 상품 목록</h1>
 
     <!-- 🔹 검색 및 필터링 폼 -->
-    <form action="{{ url_for('product_routes.product_list') }}" method="GET">
-        <input type="text" name="query" placeholder="검색어 입력" value="{{ query }}">
-        <input type="number" name="min_price" placeholder="최소 가격" value="{{ min_price or '' }}">
-        <input type="number" name="max_price" placeholder="최대 가격" value="{{ max_price or '' }}">
+    <form action="{{ url_for('product_routes.product_list') }}" method="GET" class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <input type="text" name="query" class="form-control w-auto" placeholder="검색어 입력" value="{{ query }}">
+        <input type="number" name="min_price" class="form-control w-auto" placeholder="최소 가격" value="{{ min_price or '' }}">
+        <input type="number" name="max_price" class="form-control w-auto" placeholder="최대 가격" value="{{ max_price or '' }}">
 
-        <select name="sort_by">
+        <!-- 🔹 카테고리 선택 드롭다운 (DB에서 동적으로 가져옴) -->
+        <select name="category" class="form-select w-auto">
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- 🔹 정렬 선택 -->
+        <select name="sort_by" class="form-select w-auto">
             <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>최신순</option>
             <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>가격 낮은 순</option>
             <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>가격 높은 순</option>
         </select>
 
-        <button type="submit">검색</button>
+        <button type="submit" class="btn btn-primary">검색</button>
     </form>
 
-    <!-- 🔹 상품 목록 -->
-    <div id="product-list">
+    <!-- 🔹 상품 목록 (카드형 UI) -->
+    <div class="row">
         {% for product in products.items %}
-            <div class="product-item">
-                <h2>{{ product.name }}</h2>
-                <p>{{ product.description }}</p>
-                <p>가격: {{ product.price|int }}원</p>
-                <img src="{{ product.image_url }}" width="150" alt="상품 이미지">
-                <a href="{{ url_for('product_routes.product_detail', product_id=product.id) }}">상세보기</a>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <img src="{{ product.image_url }}" class="card-img-top" alt="상품 이미지">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.description }}</p>
+                    <p class="card-text fw-bold">💰 {{ product.price|int }}원</p>
+                    <a href="{{ url_for('product_routes.product_detail', product_id=product.id) }}" class="btn btn-outline-primary">상세보기</a>
+                </div>
             </div>
+        </div>
         {% endfor %}
     </div>
 
     <!-- 🔹 페이징 -->
-    <div class="pagination">
+    <div class="d-flex justify-content-center mt-4">
         {% if products.has_prev %}
-            <a href="{{ url_for('product_routes.product_list', page=products.prev_num, query=query, min_price=min_price, max_price=max_price, sort_by=sort_by) }}">이전</a>
+            <a href="{{ url_for('product_routes.product_list', page=products.prev_num, query=query, min_price=min_price, max_price=max_price, category=category, sort_by=sort_by) }}" class="btn btn-outline-secondary mx-2">이전</a>
         {% endif %}
 
-        <span>{{ products.page }} / {{ products.pages }}</span>
+        <span class="align-self-center fw-bold">{{ products.page }} / {{ products.pages }}</span>
 
         {% if products.has_next %}
-            <a href="{{ url_for('product_routes.product_list', page=products.next_num, query=query, min_price=min_price, max_price=max_price, sort_by=sort_by) }}">다음</a>
+            <a href="{{ url_for('product_routes.product_list', page=products.next_num, query=query, min_price=min_price, max_price=max_price, category=category, sort_by=sort_by) }}" class="btn btn-outline-secondary mx-2">다음</a>
         {% endif %}
     </div>
+</div>
 {% endblock %}

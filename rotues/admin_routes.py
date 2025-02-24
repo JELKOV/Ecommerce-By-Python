@@ -4,17 +4,18 @@ from flask_login import login_required, current_user
 from model.product import Product
 from model.order import Order
 from model.user import User
-from utils.product_api import fetch_naver_products, clean_html
+from utils.product_api import fetch_naver_products
+from sqlalchemy import distinct
 
 
 # 관리자 관련 기능을 담당하는 Blueprint 생성
 admin_routes = Blueprint("admin_routes", __name__)
 
-# ✅ 관리자 대시보드
+# 관리자 대시보드
 @admin_routes.route("/admin/dashboard")
 @login_required
 def admin_dashboard():
-    """✅ 관리자 전용 대시보드"""
+    """관리자 전용 대시보드"""
     if not current_user.is_admin:
         flash("관리자만 접근 가능합니다.", "danger")
         return redirect(url_for("auth_routes.login"))
@@ -30,31 +31,76 @@ def admin_dashboard():
         total_users=total_users,
     )
 
-# ✅ 관리자 상품 관리 페이지 (페이징 적용)
+# 관리자 상품 관리 페이지 (DB에서 카테고리 동적 적용)
 @admin_routes.route("/admin/manage-products")
 @login_required
 def manage_products():
     """
-    ✅ 관리자 전용 상품 관리 페이지
-    - 페이징 기능 추가 (한 페이지에 10개씩 표시)
+    관리자 전용 상품 관리 페이지 (검색 & 필터링)
+    - 상품명 검색 (`query`)
+    - 최소 / 최대 가격 필터링 (`min_price`, `max_price`)
+    - 카테고리 필터 (`category`) → DB에서 실제 존재하는 카테고리 가져오기
+    - 정렬 기능 (`sort_by`)
+    - 페이징 적용 (한 페이지당 10개씩 표시)
     """
     if not current_user.is_admin:
         flash("관리자만 접근 가능합니다.", "danger")
         return redirect(url_for("auth_routes.login"))
 
-    page = request.args.get("page", 1, type=int)  # 페이지 번호 (기본값: 1)
+    page = request.args.get("page", 1, type=int)  # 현재 페이지 (기본값: 1)
     per_page = 10  # 한 페이지당 표시할 상품 개수
 
-    # ✅ 상품 리스트 가져오기 (페이징 적용)
-    products = Product.query.paginate(page=page, per_page=per_page, error_out=False)
+    query = request.args.get("query", "")  # 검색어
+    min_price = request.args.get("min_price", type=int)  # 최소 가격 필터
+    max_price = request.args.get("max_price", type=int)  # 최대 가격 필터
+    sort_by = request.args.get("sort_by", "latest")  # 정렬 옵션 (기본값: 최신순)
+    category = request.args.get("category", "")  # 카테고리 필터
 
-    return render_template("admin/manage_products.html", products=products)
+    # DB에서 실제 존재하는 카테고리 목록 가져오기 (중복 제거)
+    categories = ["전체보기"] + [row[0] for row in Product.query.with_entities(distinct(Product.description)).all()]
 
-# ✅ 상품 등록 (관리자 전용)
+    # 상품 검색 및 필터링
+    products_query = Product.query
+
+    if category and category != "전체보기":  # '전체보기'가 아닌 경우 필터 적용
+        products_query = products_query.filter(Product.description == category)
+
+    if query:
+        products_query = products_query.filter(Product.name.contains(query))  # 상품명 검색
+
+    if min_price is not None:
+        products_query = products_query.filter(Product.price >= min_price)
+
+    if max_price is not None:
+        products_query = products_query.filter(Product.price <= max_price)
+
+    # 정렬 적용
+    if sort_by == "price_asc":
+        products_query = products_query.order_by(Product.price.asc())  # 가격 낮은 순
+    elif sort_by == "price_desc":
+        products_query = products_query.order_by(Product.price.desc())  # 가격 높은 순
+    else:
+        products_query = products_query.order_by(Product.id.desc())  # 기본: 최신순
+
+    # 페이징 적용
+    products = products_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template(
+        "admin/manage_products.html",
+        products=products,
+        query=query,
+        min_price=min_price,
+        max_price=max_price,
+        category=category,
+        categories=categories,  # 동적 카테고리 목록 추가
+        sort_by=sort_by
+    )
+
+# 상품 등록 (관리자 전용)
 @admin_routes.route("/admin/products/add", methods=["GET", "POST"])
 def add_product():
     """
-    ✅ 관리자 전용 상품 추가 기능
+    관리자 전용 상품 추가 기능
     - 상품명, 설명, 가격, 이미지 URL을 입력하여 DB에 저장
     - 저장 완료 후 상품 관리 페이지로 이동
     """
@@ -77,11 +123,11 @@ def add_product():
 
     return render_template("admin/add_product.html")
 
-# ✅ 상품 수정 (관리자 전용)
+# 상품 수정 (관리자 전용)
 @admin_routes.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
 def edit_product(product_id):
     """
-    ✅ 관리자 전용 상품 수정 기능
+    관리자 전용 상품 수정 기능
     - 상품명을 포함한 정보 변경 가능
     - 수정 완료 후 상품 관리 페이지로 이동
     """
@@ -103,11 +149,11 @@ def edit_product(product_id):
 
     return render_template("admin/edit_product.html", product=product)
 
-# ✅ 상품 삭제 (관리자 전용)
+# 상품 삭제 (관리자 전용)
 @admin_routes.route("/admin/products/delete/<int:product_id>", methods=["POST"])
 def delete_product(product_id):
     """
-    ✅ 관리자 전용 상품 삭제 기능
+    관리자 전용 상품 삭제 기능
     - 특정 상품을 삭제 후 상품 관리 페이지로 이동
     """
     if not current_user.is_admin:
@@ -120,7 +166,7 @@ def delete_product(product_id):
     flash("상품이 삭제되었습니다.", "danger")
     return redirect(url_for("admin_routes.manage_products"))
 
-# ✅ 네이버 쇼핑 API에서 상품 가져오기 (관리자 전용)
+# 네이버 쇼핑 API에서 상품 가져오기 (관리자 전용)
 @admin_routes.route("/admin/fetch-products", methods=["GET"])
 def fetch_and_store_products():
     if not current_user.is_admin:
@@ -135,7 +181,7 @@ def fetch_and_store_products():
 
     product_list = []
     for item in products:
-        cleaned_name = item.get("name")  # ✅ 태그 제거 후 상품명 가져오기
+        cleaned_name = item.get("name")  # 태그 제거 후 상품명 가져오기
 
         if cleaned_name is None or cleaned_name.strip() == "":
             print(f"🚨 [DEBUG] 상품명 없음 → 저장 안 함: {item}")
@@ -163,3 +209,33 @@ def fetch_and_store_products():
     db.session.commit()
 
     return jsonify({"message": "상품 데이터가 저장되었습니다!", "products": product_list})
+
+# ✅ 관리자 주문 관리 페이지 (엔드포인트 추가)
+@admin_routes.route("/admin/manage-orders")
+@login_required
+def manage_orders():
+    """
+    ✅ 관리자 주문 관리 페이지
+    - 등록된 주문을 확인 및 관리할 수 있는 페이지
+    """
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
+
+    return render_template("admin/manage_orders.html")
+
+
+# ✅ 관리자 사용자 관리 페이지 추가
+@admin_routes.route("/admin/manage-users")
+@login_required
+def manage_users():
+    """
+    ✅ 관리자 사용자 관리 페이지
+    - 등록된 사용자를 확인 및 관리할 수 있는 페이지
+    """
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
+
+    users = User.query.all()  # 모든 사용자 가져오기
+    return render_template("admin/manage_users.html", users=users)

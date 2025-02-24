@@ -3,17 +3,29 @@
 {% block title %}로그인 - My Shop{% endblock %}
 
 {% block content %}
-    <h1>로그인</h1>
-    
-    <form action="{{ url_for('auth_routes.login') }}" method="POST">
-        <label for="email">이메일:</label>
-        <input type="email" name="email" required>
-        
-        <label for="password">비밀번호:</label>
-        <input type="password" name="password" required>
-        
-        <button type="submit">로그인</button>
-    </form>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center">로그인</h2>
 
-    <p>계정이 없으신가요? <a href="{{ url_for('auth_routes.register') }}">회원가입</a></p>
+        <!-- ✅ 로그인 폼 -->
+        <form action="{{ url_for('auth_routes.login') }}" method="POST">
+            <div class="mb-3">
+                <label for="email" class="form-label">이메일</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">비밀번호</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">로그인</button>
+        </form>
+
+        <!-- ✅ 회원가입 링크 -->
+        <p class="text-center mt-3">
+            계정이 없으신가요? <a href="{{ url_for('auth_routes.register') }}" class="text-primary">회원가입</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

@@ -3,18 +3,46 @@
 {% block title %}회원가입 - My Shop{% endblock %}
 
 {% block content %}
-    <h1>회원가입</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">🔐 회원가입</h2>
 
-    <form action="{{ url_for('auth_routes.register') }}" method="POST">
-        <label for="username">이름:</label>
-        <input type="text" name="username" required>
+                    <!-- 회원가입 폼 -->
+                    <form action="{{ url_for('auth_routes.register') }}" method="POST">
 
-        <label for="email">이메일:</label>
-        <input type="email" name="email" required>
+                        <!-- 이름 입력 -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">이름</label>
+                            <input type="text" name="username" class="form-control" placeholder="홍길동" required>
+                        </div>
 
-        <label for="password">비밀번호:</label>
-        <input type="password" name="password" required>
+                        <!-- 이메일 입력 -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                        </div>
 
-        <button type="submit">가입하기</button>
-    </form>
+                        <!-- 비밀번호 입력 -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">비밀번호</label>
+                            <input type="password" name="password" class="form-control" placeholder="********" required>
+                        </div>
+
+                        <!-- 회원가입 버튼 -->
+                        <button type="submit" class="btn btn-primary w-100">가입하기</button>
+                    </form>
+
+                    <!-- 로그인 링크 -->
+                    <p class="mt-3 text-center">
+                        이미 계정이 있으신가요?
+                        <a href="{{ url_for('auth_routes.login') }}" class="text-decoration-none">로그인</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

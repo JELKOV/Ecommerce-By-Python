@@ -1,15 +1,27 @@
 {% extends "base/layout.html" %}
 
-{% block title %}결제 페이지{% endblock %}
+{% block title %}💳 결제 페이지{% endblock %}
 
 {% block content %}
-    <h1>결제하기</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">💳 결제하기</h1>
 
-    <form id="payment-form">
-        <input type="hidden" id="order_id" value="12345">
-        <input type="hidden" id="amount" value="50000">
-        <button type="button" onclick="startPayment()">결제하기</button>
-    </form>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <!-- 🔹 주문 정보 -->
+                <h4 class="text-center text-primary">🛍 주문 정보</h4>
+                <p class="fw-bold">📌 주문 번호: <span id="order_id">12345</span></p>
+                <p class="fw-bold text-danger">💰 결제 금액: <span id="amount">50,000원</span></p>
+
+                <!-- 🔹 결제 버튼 -->
+                <button type="button" class="btn btn-success w-100 mt-3" onclick="startPayment()">
+                    ✅ 결제하기
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

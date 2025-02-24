@@ -1,27 +1,52 @@
 {% extends "base/layout.html" %}
 
-{% block title %}장바구니 - My Shop{% endblock %}
+{% block title %}🛒 장바구니 - My Shop{% endblock %}
 
 {% block content %}
-    <h1>장바구니</h1>
-    
+<div class="container mt-5">
+    <h1 class="text-center mb-4">🛒 장바구니</h1>
+
     {% if cart_items %}
-        <ul>
-            {% for item in cart_items %}
-                <li>
-                    <h3>{{ item.product.name }}</h3>
-                    <p>가격: {{ item.product.price }}원</p>
-                    <p>수량: {{ item.quantity }}</p>
-                    <form action="{{ url_for('cart_routes.remove_from_cart', cart_id=item.id) }}" method="POST">
-                        <button type="submit">삭제</button>
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
-        <form action="{{ url_for('cart_routes.clear_cart') }}" method="POST">
-            <button type="submit">장바구니 비우기</button>
-        </form>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- 🔹 장바구니 아이템 리스트 -->
+                {% for item in cart_items %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="row g-0">
+                        <!-- 📌 상품 이미지 -->
+                        <div class="col-md-4 text-center p-2">
+                            <img src="{{ item.product.image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                        </div>
+
+                        <!-- 📌 상품 정보 -->
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ item.product.name }}</h4>
+                                <p class="card-text text-muted">{{ item.product.description }}</p>
+                                <p class="fw-bold text-primary">💰 {{ item.product.price|int }}원</p>
+                                <p class="fw-bold">수량: {{ item.quantity }}</p>
+
+                                <!-- 🔹 삭제 버튼 -->
+                                <form action="{{ url_for('cart_routes.remove_from_cart', cart_id=item.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">❌ 삭제</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- 🔹 장바구니 비우기 -->
+                <form action="{{ url_for('cart_routes.clear_cart') }}" method="POST" class="text-center mt-3">
+                    <button type="submit" class="btn btn-danger w-100">🗑 장바구니 비우기</button>
+                </form>
+            </div>
+        </div>
     {% else %}
-        <p>장바구니가 비어 있습니다.</p>
+        <div class="text-center mt-5">
+            <p class="fs-4 text-muted">장바구니가 비어 있습니다. 🛍</p>
+            <a href="{{ url_for('product_routes.product_list') }}" class="btn btn-primary">📢 상품 보러가기</a>
+        </div>
     {% endif %}
+</div>
 {% endblock %}

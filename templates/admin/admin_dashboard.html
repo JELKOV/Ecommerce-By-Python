@@ -1,14 +1,46 @@
 {% extends "base/layout.html" %}
 
-{% block title %}관리자 대시보드{% endblock %}
+{% block title %}📊 관리자 대시보드{% endblock %}
 
 {% block content %}
-    <h1>관리자 대시보드</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">📊 관리자 대시보드</h1>
 
-    <h2>📊 시스템 개요</h2>
-    <ul>
-        <li>총 등록된 상품: {{ total_products }}</li>
-        <li>총 주문 수: {{ total_orders }}</li>
-        <li>총 사용자 수: {{ total_users }}</li>
-    </ul>
+    <!-- 🔹 대시보드 카드 섹션 -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">🛍 총 등록된 상품</h5>
+                    <p class="display-5 fw-bold">{{ total_products }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📦 총 주문 수</h5>
+                    <p class="display-5 fw-bold">{{ total_orders }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">👥 총 사용자 수</h5>
+                    <p class="display-5 fw-bold">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 관리 페이지 바로가기 -->
+    <div class="text-center mt-5">
+        <a href="{{ url_for('admin_routes.manage_products') }}" class="btn btn-primary">🛍 상품 관리</a>
+        <a href="{{ url_for('admin_routes.manage_orders') }}" class="btn btn-secondary">📦 주문 관리</a>
+        <a href="{{ url_for('admin_routes.manage_users') }}" class="btn btn-dark">👥 사용자 관리</a>
+    </div>
+</div>
 {% endblock %}

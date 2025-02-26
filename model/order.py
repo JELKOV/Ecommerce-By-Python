@@ -7,6 +7,7 @@ class Order(db.Model):
 
 
     order_id = db.Column(db.String(255), unique=True, nullable=False)# 주문 ID (UUID)
+    order_name = db.Column(db.String(255))
     payment_key = db.Column(db.String(255), unique=True, nullable=True)# 토스 결제 키
     payment_method = db.Column(db.String(50), nullable=True)# 결제 수단 (카드, 가상계좌 등)
     paid_amount = db.Column(db.Float, nullable=True)# 실제 결제 금액

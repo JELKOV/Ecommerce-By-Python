@@ -21,7 +21,7 @@ def admin_dashboard():
         return redirect(url_for("auth_routes.login"))
 
     total_products = Product.query.count()
-    total_orders = Order.query.count() if "Order" in db.metadata.tables else 0
+    total_orders = Order.query.count()
     total_users = User.query.count()
 
     return render_template(
@@ -210,20 +210,6 @@ def fetch_and_store_products():
 
     return jsonify({"message": "상품 데이터가 저장되었습니다!", "products": product_list})
 
-# 관리자 주문 관리 페이지 (엔드포인트 추가)
-@admin_routes.route("/admin/manage-orders")
-@login_required
-def manage_orders():
-    """
-    관리자 주문 관리 페이지
-    - 등록된 주문을 확인 및 관리할 수 있는 페이지
-    """
-    if not current_user.is_admin:
-        flash("관리자만 접근 가능합니다.", "danger")
-        return redirect(url_for("auth_routes.login"))
-
-    return render_template("admin/manage_orders.html")
-
 
 # 관리자 사용자 관리 페이지 추가
 @admin_routes.route("/admin/manage-users")
@@ -283,3 +269,67 @@ def delete_user(user_id):
     db.session.commit()
     flash("사용자가 삭제되었습니다.", "danger")
     return redirect(url_for("admin_routes.manage_users"))
+
+
+# 관리자 주문 관리 페이지 (모든 주문 조회)
+@admin_routes.route("/admin/orders")
+@login_required
+def manage_orders():
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
+
+    query = Order.query
+
+    # 결제 상태 필터링
+    payment_status = request.args.get("payment_status")
+    if payment_status:
+        query = query.filter(Order.payment_status == payment_status)
+
+    # 결제 방법 필터링
+    payment_method = request.args.get("payment_method")
+    if payment_method:
+        query = query.filter(Order.payment_method == payment_method)
+
+    # 가격 정렬
+    sort_price = request.args.get("sort_price", "desc")
+    if sort_price == "asc":
+        query = query.order_by(Order.total_price.asc())
+    else:
+        query = query.order_by(Order.total_price.desc())
+
+    orders = query.order_by(Order.created_at.desc()).all()
+
+    return render_template(
+        "admin/manage_orders.html",
+        orders=orders,
+        sort_price=sort_price,
+        payment_status=payment_status,
+        payment_method=payment_method
+    )
+
+# 주문 상태 변경 API
+@admin_routes.route("/admin/orders/update", methods=["POST"])
+@login_required
+def update_order_status():
+    if not current_user.is_admin:
+        return jsonify({"error": "관리자 권한이 없습니다."}), 403
+
+    data = request.json
+    order_id = data.get("order_id")
+    new_status = data.get("status")
+
+    if not order_id or not new_status:
+        return jsonify({"error": "주문 ID 또는 상태가 누락되었습니다."}), 400
+
+    order = Order.query.filter_by(order_id=order_id).first()
+
+    if not order:
+        return jsonify({"error": "해당 주문을 찾을 수 없습니다."}), 404
+
+    order.payment_status = new_status
+    db.session.commit()
+
+    return jsonify({"message": f"주문 상태가 '{new_status}'(으)로 변경되었습니다."})
+
+

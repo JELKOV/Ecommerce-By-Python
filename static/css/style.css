@@ -1,4 +1,4 @@
-/* ✅ 기본 스타일 설정 */
+/* 기본 스타일 설정 */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,7 +6,7 @@ body {
     background-color: #f5f5f5;
 }
 
-/* ✅ 네비게이션 바 스타일 */
+/* 네비게이션 바 스타일 */
 nav {
     background-color: #333;
     padding: 10px 0;
@@ -36,7 +36,7 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
-/* ✅ 메인 컨텐츠 */
+/* 메인 컨텐츠 */
 main {
     max-width: 800px;
     margin: 20px auto;
@@ -46,7 +46,12 @@ main {
     border-radius: 8px;
 }
 
-/* ✅ 푸터 스타일 */
+.table th {
+    white-space: nowrap;  /* 줄바꿈 방지 */
+    vertical-align: middle; /* 중앙 정렬로 깔끔히 맞추기 */
+}
+
+/* 푸터 스타일 */
 footer {
     text-align: center;
     padding: 10px;

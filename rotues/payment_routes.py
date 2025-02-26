@@ -49,6 +49,7 @@ def direct_payment():
     new_order = Order(
         user_id=current_user.id,
         order_id=order_id,
+        order_name=f"{product.name} {quantity}개 구매",
         total_price=total_amount,
         payment_status="pending",
         payment_method="direct"
@@ -99,6 +100,7 @@ def process_cart_payment():
     new_order = Order(
         user_id=current_user.id,
         order_id=order_id,
+        order_name=f"{cart_items[0].product.name} 외 {len(cart_items) - 1}개 상품",
         total_price=total_amount,
         payment_status="pending",
         payment_method="cart"

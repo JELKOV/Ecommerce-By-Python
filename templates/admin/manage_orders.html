@@ -1,10 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base/layout.html" %}
 
-</body>
-</html>
+{% block title %}📦 주문 관리{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h3 class="text-center mb-4">📦 주문 관리</h3>
+
+    <!-- 필터 및 정렬 선택 영역 -->
+    <div class="row justify-content-center">
+        <div class="col-md-3">
+            <label>총 가격 정렬</label>
+            <select id="sort-price" class="form-select">
+                <option value="desc" {% if request.args.get('sort_price') == 'desc' %}selected{% endif %}>높은 가격순</option>
+                <option value="asc" {% if request.args.get('sort_price') == 'asc' %}selected{% endif %}>낮은 가격순</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>결제 상태</label>
+            <select id="filter-status" class="form-select">
+                <option value="">전체 상태</option>
+                <option value="pending" {% if request.args.get('payment_status') == 'pending' %}selected{% endif %}>대기</option>
+                <option value="paid" {% if request.args.get('payment_status') == 'paid' %}selected{% endif %}>결제 완료</option>
+                <option value="failed" {% if request.args.get('payment_status') == 'failed' %}selected{% endif %}>결제 실패</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>결제 방법 필터링</label>
+            <select id="filter-method" class="form-select">
+                <option value="">전체 결제방법</option>
+                <option value="direct" {% if request.args.get('payment_method') == 'direct' %}selected{% endif %}>바로 구매</option>
+                <option value="cart" {% if request.args.get('payment_method') == 'cart' %}selected{% endif %}>장바구니</option>
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-hover shadow mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>주문 ID</th>
+                <th>사용자 ID</th>
+                <th>주문 상품</th>
+                <th>총 가격</th>
+                <th>결제 상태</th>
+                <th>결제 방법</th>
+                <th>주문 일자</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.order_name or '정보 없음' }}</td>
+                <td>{{ order.total_price | int }}원</td>
+                <td>
+                    <select class="form-select order-status-select" data-order-id="{{ order.order_id }}">
+                        <option value="pending" {% if order.payment_status == 'pending' %}selected{% endif %}>대기</option>
+                        <option value="paid" {% if order.payment_status == 'paid' %}selected{% endif %}>결제 완료</option>
+                        <option value="failed" {% if order.payment_status == 'failed' %}selected{% endif %}>결제 실패</option>
+                    </select>
+                </td>
+                <td>{{ order.payment_method }}</td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='js/orders.js') }}"></script>
+{% endblock %}

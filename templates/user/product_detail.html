@@ -8,32 +8,50 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="row g-0">
-                    <!-- 📌 상품 이미지 -->
-                    <div class="col-md-6">
+                    <!-- 상품 이미지 -->
+                    <div class="col-md-6 text-center">
                         <img src="{{ product.image_url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
                     </div>
 
-                    <!-- 📌 상품 정보 -->
+                    <!-- 상품 정보 -->
                     <div class="col-md-6">
-                        <div class="card-body">
+                        <!-- data-product-id 추가 -->
+                        <div class="card-body" data-product-id="{{ product.id }}">
                             <h2 class="card-title">{{ product.name }}</h2>
                             <p class="card-text text-muted">{{ product.description }}</p>
-                            <p class="fs-4 fw-bold text-primary">💰 {{ product.price|int }}원</p>
 
-                            <!-- 📌 장바구니 추가 버튼 -->
-                            <form action="{{ url_for('cart_routes.add_to_cart', product_id=product.id) }}" method="POST">
-                                <button type="submit" class="btn btn-success w-100">🛒 장바구니에 추가</button>
+                            <!-- 가격 자동 변경 -->
+                            <p class="fs-4 fw-bold text-primary">
+                                💰 <span id="total-price" data-unit-price="{{ product.price|int }}">{{ product.price|int }}</span>원
+                            </p>
+
+                            <!-- 수량 입력 필드 -->
+                            <label for="quantity" class="fw-bold">수량:</label>
+                            <input type="number" id="quantity" value="1" min="1" class="form-control my-2" required>
+
+                            <!-- 장바구니 추가 버튼 -->
+                            <button type="button" class="btn btn-success w-100" onclick="addToCart()">🛒 장바구니에 추가</button>
+
+                            <!-- 바로 결제 버튼 -->
+                            <form id="directPaymentForm">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" id="directPaymentQuantity" name="quantity" value="1">
+                                <button type="button" class="btn btn-warning w-100 mt-2" onclick="directPayment()">💳 바로 결제</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 🔹 뒤로가기 버튼 -->
+            <!-- 뒤로가기 버튼 -->
             <div class="mt-3 text-center">
                 <a href="{{ url_for('product_routes.product_list') }}" class="btn btn-outline-secondary">🔙 상품 목록으로</a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- JavaScript 파일 불러오기 -->
+<script src="{{ url_for('static', filename='js/product.js') }}"></script>
+<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
 {% endblock %}

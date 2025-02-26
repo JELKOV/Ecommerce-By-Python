@@ -1,0 +1,11 @@
+{% extends "base/layout.html" %}
+{% block title %}결제 성공!{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h2>🎉 결제가 성공적으로 완료되었습니다!</h2>
+    <p>주문 번호: {{ order.order_id }}</p>
+    <p>결제 금액: {{ order.paid_amount | int }} 원</p>
+    <a href="{{ url_for('product_routes.product_list') }}" class="btn btn-primary">상품 더 보기</a>
+</div>
+{% endblock %}

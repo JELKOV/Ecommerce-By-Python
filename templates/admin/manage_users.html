@@ -1,10 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base/layout.html" %}
 
-</body>
-</html>
+{% block title %}👥 사용자 관리 - 관리자{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">👥 사용자 관리</h1>
+
+    <!-- ✅ 사용자 목록 테이블 -->
+    <div class="table-responsive">
+        <table class="table table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>🆔 ID</th>
+                    <th>👤 이름</th>
+                    <th>📧 이메일</th>
+                    <th>⚡ 역할</th>
+                    <th>🛠 관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_routes.update_user_role', user_id=user.id) }}" method="POST">
+                            <select name="role" class="form-select form-select-sm d-inline w-auto">
+                                <option value="user" {% if not user.is_admin %}selected{% endif %}>사용자</option>
+                                <option value="admin" {% if user.is_admin %}selected{% endif %}>관리자</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">변경</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('admin_routes.delete_user', user_id=user.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')">🗑 삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

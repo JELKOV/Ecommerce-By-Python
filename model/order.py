@@ -1,11 +1,17 @@
-# 주문로직
 from . import db
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-    payment_status = db.Column(db.String(50), default="pending")  # "paid", "failed"
-    created_at = db.Column(db.DateTime, default=db.func.now())
+
+
+    order_id = db.Column(db.String(255), unique=True, nullable=False)# 주문 ID (UUID)
+    payment_key = db.Column(db.String(255), unique=True, nullable=True)# 토스 결제 키
+    payment_method = db.Column(db.String(50), nullable=True)# 결제 수단 (카드, 가상계좌 등)
+    paid_amount = db.Column(db.Float, nullable=True)# 실제 결제 금액
+    payment_status = db.Column(db.String(50), default="pending")# "pending", "paid", "failed"
+    paid_at = db.Column(db.DateTime, nullable=True)# 결제 승인된 시간
+    created_at = db.Column(db.DateTime, default=db.func.now())# 주문 생성 시간
 
     user = db.relationship('User', backref=db.backref('orders', lazy=True))

@@ -20,52 +20,44 @@ def view_cart():
     return render_template("user/cart.html", cart_items=cart_items, total_price=total_price)
 
 
-# ✅ 장바구니에 상품 추가
+# ✅ 장바구니에 상품 추가 (수량 업데이트 기능 포함)
 @cart_routes.route("/cart/add/<int:product_id>", methods=["POST"])
 @login_required
 def add_to_cart(product_id):
     """
-    ✅ 특정 상품을 장바구니에 추가
-    - 이미 장바구니에 있는 상품이면 수량 증가
-    - 새로운 상품이면 추가
+    ✅ 특정 상품을 장바구니에 추가 (이미 있는 경우 수량 업데이트)
     """
     product = Product.query.get_or_404(product_id)
+    data = request.get_json()  # ✅ JSON 데이터 받아오기
+    quantity = int(data.get("quantity", 1))  # 기본 수량: 1
 
-    if product is None:
-        flash("해당 상품을 찾을 수 없습니다.", "danger")
-        return redirect(url_for("cart_routes.view_cart"))
+    # ✅ 기존 장바구니 아이템이 있는지 확인
+    cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
 
-    existing_cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
-
-    if existing_cart_item:
-        existing_cart_item.quantity += 1
+    if cart_item:
+        cart_item.quantity += quantity  # ✅ 기존 수량 업데이트
     else:
-        new_cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=1)
-        db.session.add(new_cart_item)
+        cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=quantity)
+        db.session.add(cart_item)
 
     db.session.commit()
-    flash(f"✅ {product.name}이(가) 장바구니에 추가되었습니다.", "success")
-    return redirect(url_for("cart_routes.view_cart"))
+
+    return jsonify({"success": True, "message": f"✅ {product.name}이(가) 장바구니에 추가되었습니다.", "quantity": cart_item.quantity})
 
 
-# ✅ 장바구니에서 특정 상품 삭제
+# ✅ 장바구니 상품 삭제 (AJAX 지원)
 @cart_routes.route("/cart/remove/<int:cart_id>", methods=["POST"])
 @login_required
 def remove_from_cart(cart_id):
-    """
-    ✅ 특정 상품을 장바구니에서 제거
-    - 본인의 장바구니가 아니면 삭제 불가
-    """
     cart_item = Cart.query.get_or_404(cart_id)
 
     if cart_item.user_id != current_user.id:
-        flash("⛔ 잘못된 요청입니다.", "danger")
-        return redirect(url_for("cart_routes.view_cart"))
+        return jsonify({"error": "⛔ 잘못된 요청입니다."}), 403
 
     db.session.delete(cart_item)
     db.session.commit()
-    flash("❌ 상품이 장바구니에서 삭제되었습니다.", "danger")
-    return redirect(url_for("cart_routes.view_cart"))
+
+    return jsonify({"success": True, "message": "🛒 상품이 삭제되었습니다."})
 
 
 # ✅ 장바구니 비우기
@@ -93,7 +85,10 @@ def update_cart_quantity(cart_id):
     if cart_item.user_id != current_user.id:
         return jsonify({"error": "⛔ 권한이 없습니다."}), 403
 
-    new_quantity = request.json.get("quantity", 1)
+    try:
+        new_quantity = int(request.json.get("quantity", 1))
+    except ValueError:
+        return jsonify({"error": "⛔ 올바른 숫자를 입력하세요."}), 400
 
     if new_quantity < 1:
         db.session.delete(cart_item)

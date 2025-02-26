@@ -1,8 +1,8 @@
-"""initial migration
+"""Initial migration with fixed order and user table
 
-Revision ID: fe4bcb53491e
+Revision ID: fb9db8b5239e
 Revises: 
-Create Date: 2025-02-22 00:43:53.922920
+Create Date: 2025-02-25 15:44:06.995803
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fe4bcb53491e'
+revision = 'fb9db8b5239e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,7 +31,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=80), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
-    sa.Column('password', sa.String(length=200), nullable=False),
+    sa.Column('password_hash', sa.String(length=200), nullable=False),
+    sa.Column('is_admin', sa.Boolean(), server_default='0', nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
@@ -51,10 +52,17 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('total_price', sa.Float(), nullable=False),
-    sa.Column('status', sa.String(length=50), nullable=True),
+    sa.Column('order_id', sa.String(length=255), nullable=False),
+    sa.Column('payment_key', sa.String(length=255), nullable=True),
+    sa.Column('payment_method', sa.String(length=50), nullable=True),
+    sa.Column('paid_amount', sa.Float(), nullable=True),
+    sa.Column('payment_status', sa.String(length=50), nullable=True),
+    sa.Column('paid_at', sa.DateTime(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('order_id'),
+    sa.UniqueConstraint('payment_key')
     )
     # ### end Alembic commands ###
 

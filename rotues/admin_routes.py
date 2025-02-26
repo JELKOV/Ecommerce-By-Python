@@ -210,12 +210,12 @@ def fetch_and_store_products():
 
     return jsonify({"message": "상품 데이터가 저장되었습니다!", "products": product_list})
 
-# ✅ 관리자 주문 관리 페이지 (엔드포인트 추가)
+# 관리자 주문 관리 페이지 (엔드포인트 추가)
 @admin_routes.route("/admin/manage-orders")
 @login_required
 def manage_orders():
     """
-    ✅ 관리자 주문 관리 페이지
+    관리자 주문 관리 페이지
     - 등록된 주문을 확인 및 관리할 수 있는 페이지
     """
     if not current_user.is_admin:
@@ -225,12 +225,12 @@ def manage_orders():
     return render_template("admin/manage_orders.html")
 
 
-# ✅ 관리자 사용자 관리 페이지 추가
+# 관리자 사용자 관리 페이지 추가
 @admin_routes.route("/admin/manage-users")
 @login_required
 def manage_users():
     """
-    ✅ 관리자 사용자 관리 페이지
+    관리자 사용자 관리 페이지
     - 등록된 사용자를 확인 및 관리할 수 있는 페이지
     """
     if not current_user.is_admin:
@@ -239,3 +239,47 @@ def manage_users():
 
     users = User.query.all()  # 모든 사용자 가져오기
     return render_template("admin/manage_users.html", users=users)
+
+
+# 관리자 사용자 역할 변경 기능
+@admin_routes.route("/admin/users/update-role/<int:user_id>", methods=["POST"])
+@login_required
+def update_user_role(user_id):
+    """
+    관리자 전용 사용자 역할 변경 기능
+    - 사용자의 역할을 'user' 또는 'admin'으로 변경
+    """
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
+
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get("role")
+
+    # 역할 변경
+    if new_role == "admin":
+        user.is_admin = True
+    else:
+        user.is_admin = False
+
+    db.session.commit()
+    flash("사용자 역할이 변경되었습니다.", "success")
+    return redirect(url_for("admin_routes.manage_users"))
+
+# 관리자 사용자 삭제 기능
+@admin_routes.route("/admin/users/delete/<int:user_id>", methods=["POST"])
+@login_required
+def delete_user(user_id):
+    """
+    관리자 전용 사용자 삭제 기능
+    - 특정 사용자를 삭제
+    """
+    if not current_user.is_admin:
+        flash("관리자만 접근 가능합니다.", "danger")
+        return redirect(url_for("auth_routes.login"))
+
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash("사용자가 삭제되었습니다.", "danger")
+    return redirect(url_for("admin_routes.manage_users"))

@@ -9,34 +9,61 @@
     {% if cart_items %}
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <!-- 🔹 장바구니 아이템 리스트 -->
-                {% for item in cart_items %}
-                <div class="card mb-3 shadow-sm">
-                    <div class="row g-0">
-                        <!-- 📌 상품 이미지 -->
-                        <div class="col-md-4 text-center p-2">
-                            <img src="{{ item.product.image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
-                        </div>
+                <form id="cart-form">
+                    {% for item in cart_items %}
+                    <div class="card mb-3 shadow-sm cart-item" data-cart-id="{{ item.id }}">
+                        <div class="row g-0">
+                            <!-- 체크박스 추가 -->
+                            <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                <input type="checkbox" name="selected_items" value="{{ item.id }}" class="form-check-input" onchange="calculateTotal()">
+                            </div>
 
-                        <!-- 📌 상품 정보 -->
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">{{ item.product.name }}</h4>
-                                <p class="card-text text-muted">{{ item.product.description }}</p>
-                                <p class="fw-bold text-primary">💰 {{ item.product.price|int }}원</p>
-                                <p class="fw-bold">수량: {{ item.quantity }}</p>
+                            <!-- 상품 이미지 -->
+                            <div class="col-md-3 text-center p-2">
+                                <img src="{{ item.product.image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                            </div>
 
-                                <!-- 🔹 삭제 버튼 -->
-                                <form action="{{ url_for('cart_routes.remove_from_cart', cart_id=item.id) }}" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">❌ 삭제</button>
-                                </form>
+                            <!-- 상품 정보 -->
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">{{ item.product.name }}</h4>
+                                    <p class="fw-bold text-primary">
+                                        💰 <span id="item-price-{{ item.id }}" data-unit-price="{{ item.product.price|int }}">
+                                            {{ (item.product.price * item.quantity)|int }}원
+                                        </span>
+                                    </p>
+                                    <p class="fw-bold">수량:
+                                        <input type="number" class="form-control d-inline w-25" value="{{ item.quantity }}"
+                                               min="1" onchange="updateQuantity({{ item.id }}, this.value)">
+                                    </p>
+
+                                    <!-- 삭제 버튼 (AJAX 방식) -->
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-from-cart" data-cart-id="{{ item.id }}">
+                                        ❌ 삭제
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
 
-                <!-- 🔹 장바구니 비우기 -->
+                    <!-- 선택한 상품 가격 총합 UI 개선 -->
+                    <div class="text-center mt-4 p-3 border rounded shadow-sm bg-light">
+                        <h4 class="fw-bold text-dark">
+                            💰 총 결제 금액:
+                            <span id="total-price" class="text-danger fs-3 fw-bold">0</span>원
+                        </h4>
+                    </div>
+
+                    <!-- 선택한 상품만 결제 -->
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-primary w-100" onclick="startSelectedCartPayment()">
+                            💳 선택한 상품만 결제하기
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 장바구니 비우기 -->
                 <form action="{{ url_for('cart_routes.clear_cart') }}" method="POST" class="text-center mt-3">
                     <button type="submit" class="btn btn-danger w-100">🗑 장바구니 비우기</button>
                 </form>
@@ -49,4 +76,9 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
 {% endblock %}

@@ -24,4 +24,4 @@ ENV DATABASE_URL=postgresql://ecommerce_db_dkop_user:A2M1JVJSGFLodIMDTUjbBcFs6fT
 ENV PORT=5000
 
 # 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
-CMD flask db upgrade && gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app
+CMD flask db migrate -m "Initial migration" && flask db upgrade && gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app

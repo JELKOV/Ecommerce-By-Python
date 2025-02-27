@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 # 2. 환경변수 설정
 ENV FLASK_APP=main.py
-ENV FLASK_DEBUG=0
+ENV FLASK_ENV=production
 ENV SECRET_KEY=7e5b966c6064fa2403da06fb77516b6d1ecbd416cd76c8b484bd3755ff081dc5
 ENV TOSS_CLIENT_API_KEY=test_ck_oEjb0gm23P4GnevPP01j3pGwBJn5
 ENV TOSS_SECRET_KEY=test_sk_Z1aOwX7K8mEeA52Ev0P08yQxzvNP
@@ -25,8 +25,11 @@ COPY requirements.txt /app/
 # 6. 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 7. 애플리케이션 코드 복사
+# 7. 환경변수 파일을 Docker 컨테이너로 복사
+COPY .env /app/
+
+# 8. 애플리케이션 코드 복사
 COPY . /app/
 
-# 8. 애플리케이션 실행
+# 9. 애플리케이션 실행
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]

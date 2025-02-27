@@ -75,6 +75,7 @@
 - **데이터베이스**
   - SQLite (개발 단계)
   - 주문, 사용자, 상품, 장바구니 모델 정의
+  - postgres(배포 단계)
 
 - **사용 기술**
   - Python
@@ -152,6 +153,6 @@
 
 ## 👥 프로젝트 참여자
 
-- 안제호: JELKOV (총괄 개발)
-  - [JELKOV Github 주소](https://github.com/JELKOV)
+- 안제호: JELKOV (총괄 개발)!
+  - [JELKOV Github 주소](https://github.com/JELKOV) 
 

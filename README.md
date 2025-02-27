@@ -140,10 +140,10 @@
 
 ---
 
-## 🚀 향후 작업
+## 🚀 배포 완료
 
-- Docker를 이용한 배포 환경 구축 및 최종 배포
-- GitHub에 최종 코드 업로드
+- Render와 postgre를 활용한 배포
+- [배포 주소](https://ecommerce-by-python.onrender.com/)
 
 
 ---

@@ -1,6 +1,6 @@
 # 파이썬 패키지 설치 목록
 python-dotenv~=1.0.1
-Flask~=3.1.0
+Flask==2.2.3
 Flask-Migrate~=4.1.0
 click~=8.1.8
 Flask-Login~=0.6.3
@@ -9,7 +9,7 @@ alembic~=1.14.1
 SQLAlchemy~=2.0.37
 requests~=2.32.3
 beautifulsoup4~=4.12.3
-Flask-SQLAlchemy~=2.5.1
+flask_sqlalchemy==3.0.0
 Flask-WTF~=1.0.1
 psycopg2-binary~=2.9.3
 alembic~=1.14.1

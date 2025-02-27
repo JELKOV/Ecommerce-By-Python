@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_migrate import Migrate
 from config import Config
@@ -21,4 +22,8 @@ register_routes(app)
 
 # Flask 서버 실행
 if __name__ == "__main__":
-    app.run(debug=not Config.IS_PRODUCTION)
+    if os.environ.get("FLASK_ENV") == "development":
+        app.run(host="0.0.0.0", port=5000, debug=True)  # 로컬 개발
+    else:
+        from gunicorn.app.wsgiapp import run
+        run()  # 배포 시 Gunicorn 실행

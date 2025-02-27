@@ -1,20 +1,25 @@
-# 1. Python 3.9 버전 이미지를 기반으로 시작
-FROM python:3.9-slim
+# 1️⃣ Python 3.10 기반 이미지 사용 (Slim 버전으로 경량화)
+FROM python:3.10-slim
 
-# 2. 작업 디렉토리 생성
+# 2️⃣ 작업 디렉토리 생성
 WORKDIR /app
 
-# 3. 애플리케이션에 필요한 파일 복사
-COPY requirements.txt /app/
+# 3️⃣ 시스템 패키지 업데이트 & 필수 라이브러리 설치 (예: psycopg2 사용 시 필요)
+RUN apt-get update && apt-get install -y \
+    gcc libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# 4. 의존성 설치
+# 4️⃣ 의존성 설치 (캐시 최적화)
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. 환경변수 파일을 Docker 컨테이너로 복사
-COPY .env /app/
+# 5️⃣ 애플리케이션 코드 복사
+COPY . .
 
-# 6. 애플리케이션 코드 복사
-COPY . /app/
+# 6️⃣ 환경변수 설정 (Railway에서 자동 할당되는 PORT 사용)
+ENV FLASK_APP=main.py
+ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
 
-# 7. 애플리케이션 실행
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+# 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${PORT}", "main:app"]

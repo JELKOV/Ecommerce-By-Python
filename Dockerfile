@@ -22,4 +22,4 @@ ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 
 # 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
-CMD gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${PORT}", "--env", "SQLALCHEMY_DATABASE_URI=${DATABASE_PROD_URL}", "main:app"]

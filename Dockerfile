@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5️⃣ 애플리케이션 코드 복사
 COPY . .
 
-# 6️⃣ 환경변수 설정 (Railway에서 자동 할당되는 PORT 사용)
+# 6️⃣ 환경변수 설정
 ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
@@ -24,4 +24,4 @@ ENV DATABASE_URL=postgresql://ecommerce_db_dkop_user:A2M1JVJSGFLodIMDTUjbBcFs6fT
 ENV PORT=5000
 
 # 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
-CMD flask db migrate -m "Initial migration" && flask db upgrade && gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app
+CMD flask db upgrade && gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app

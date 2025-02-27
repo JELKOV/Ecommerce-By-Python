@@ -14,7 +14,7 @@ class Config:
 
     # 데이터베이스 환경 변수 설정
     if IS_PRODUCTION:
-        SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_PROD_URL")
+        SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
         print(f"✅ DATABASE_PROD_URL: {SQLALCHEMY_DATABASE_URI}")
     else:
         SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_DEV_URL")

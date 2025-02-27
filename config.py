@@ -9,8 +9,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Flask 환경 감지
-    FLASK_ENV = os.getenv("FLASK_ENV", "development")
-    IS_PRODUCTION = FLASK_ENV == "production"
+    FLASK_DEBUG = os.getenv("FLASK_ENV", "development")
+    IS_PRODUCTION = FLASK_DEBUG == "production"
 
     # 데이터베이스 환경 변수 설정
     if IS_PRODUCTION:

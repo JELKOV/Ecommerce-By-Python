@@ -21,6 +21,7 @@ ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 ENV DATABASE_URL=postgresql://postgres:OqKdQSYSTdyToHXTxvvIRHJBfYzcPivQ@postgres.railway.internal:5432/railway
+ENV PORT=5000
 
 # 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
 CMD gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app

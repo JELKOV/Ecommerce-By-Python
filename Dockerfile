@@ -10,6 +10,8 @@ ENV TOSS_SECRET_KEY=test_sk_Z1aOwX7K8mEeA52Ev0P08yQxzvNP
 ENV NAVER_CLIENT_ID=sOL0f1fz4ydLXaq141jN
 ENV NAVER_CLIENT_SECRET=9xRY8DK8oe
 ENV NAVER_API_URL=https://openapi.naver.com/v1/search/shop.json
+ENV PAYMENT_SUCCESS_URL_PROD=https://ecommerce-by-python.railway.internal/success
+ENV PAYMENT_FAIL_URL_PROD=https://ecommerce-by-python.railway.internal/fail
 
 # 3. PostgreSQL 데이터베이스 URL
 ENV DATABASE_URL=postgresql://postgres:OqKdQSYSTdyToHXTxvvIRHJBfYzcPivQ@postgres.railway.internal:5432/railway
@@ -23,11 +25,8 @@ COPY requirements.txt /app/
 # 6. 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 7. 환경변수 파일을 Docker 컨테이너로 복사
-COPY .env /app/
-
-# 8. 애플리케이션 코드 복사
+# 7. 애플리케이션 코드 복사
 COPY . /app/
 
-# 9. 애플리케이션 실행
+# 8. 애플리케이션 실행
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]

@@ -154,5 +154,4 @@
 
 - 안제호: JELKOV (총괄 개발)
   - [JELKOV Github 주소](https://github.com/JELKOV)
-- 장준희: (배포담당)
 

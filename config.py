@@ -10,7 +10,7 @@ class Config:
 
     # Flask 환경 감지
     FLASK_DEBUG = os.getenv("FLASK_ENV", "development")
-    IS_PRODUCTION = FLASK_DEBUG == "production"
+    IS_PRODUCTION = FLASK_DEBUG == 1
 
     # 데이터베이스 환경 변수 설정
     if IS_PRODUCTION:

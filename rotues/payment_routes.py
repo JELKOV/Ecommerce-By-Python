@@ -1,32 +1,24 @@
 from flask import Blueprint, request, jsonify, render_template
 from flask_login import login_required, current_user
 import requests
-import os
 import base64
 import uuid
 from model import db
 from model.order import Order
 from model.cart import Cart
 from model.product import Product
+from config import Config
 
 payment_routes = Blueprint("payment_routes", __name__)
 
-# 환경 변수 불러오기
-FLASK_ENV = os.getenv("FLASK_ENV", "development")
-
-# 환경변수에서 결제 API 키 불러오기 (없을 경우 예외처리)
-TOSS_CLIENT_API_KEY = os.getenv("TOSS_CLIENT_API_KEY")
-TOSS_SECRET_KEY = os.getenv("TOSS_SECRET_KEY")
+# Toss API 환경 변수 가져오기
+TOSS_CLIENT_API_KEY = Config.TOSS_CLIENT_API_KEY
+TOSS_SECRET_KEY = Config.TOSS_SECRET_KEY
+SUCCESS_URL = Config.SUCCESS_URL
+FAIL_URL = Config.FAIL_URL
 
 # Base64 인코딩된 시크릿 키 생성 (Toss API 요구사항)
 encoded_secret_key = base64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
-
-# 배포 환경여부 확인
-IS_PRODUCTION = FLASK_ENV == "production"
-
-# 성공 및 실패 리디렉트 URL (환경변수에서 설정)
-SUCCESS_URL = os.getenv("PAYMENT_SUCCESS_URL_PROD") if IS_PRODUCTION else os.getenv("PAYMENT_SUCCESS_URL_DEV")
-FAIL_URL = os.getenv("PAYMENT_FAIL_URL_PROD") if IS_PRODUCTION else os.getenv("PAYMENT_FAIL_URL_DEV")
 
 # 개별 상품 즉시 결제 (장바구니 없이)
 @payment_routes.route("/payment/direct", methods=["POST"])

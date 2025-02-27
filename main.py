@@ -4,10 +4,6 @@ from config import Config
 from model import db
 from utils.security import login_manager
 from rotues import register_routes
-from dotenv import load_dotenv
-
-# .env 파일 로드
-load_dotenv()
 
 # Flask 앱 생성
 app = Flask(__name__, static_folder="static")
@@ -25,4 +21,4 @@ register_routes(app)
 
 # Flask 서버 실행
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=not Config.IS_PRODUCTION)

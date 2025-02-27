@@ -1,17 +1,12 @@
 import requests
-import os
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
-
-# .env 파일 로드
-load_dotenv()
+from config import Config
 
 # 네이버 API 정보
-NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
-NAVER_API_URL = "https://openapi.naver.com/v1/search/shop.json"
+NAVER_CLIENT_ID = Config.NAVER_CLIENT_ID
+NAVER_CLIENT_SECRET = Config.NAVER_CLIENT_SECRET
+NAVER_API_URL = Config.NAVER_API_URL
 
-from bs4 import BeautifulSoup
 
 def clean_html(raw_html):
     if not raw_html or not isinstance(raw_html, str):
@@ -54,12 +49,12 @@ def fetch_naver_products(query="노트북"):
                 print(f"🚨 [DEBUG] 상품명이 아예 없음 → 저장 안 함: {item}")
                 continue  # 상품명이 없으면 저장하지 않음
 
-            # ✅ 분류를 먼저 수행
+            # 분류를 먼저 수행
             category = item.get("category1", "카테고리 없음")
             price = int(float(item.get("lprice", 0))) if item.get("lprice") else 0
             image_url = item.get("image", "")
 
-            # ✅ 이제 태그를 제거
+            # 이제 태그를 제거
             cleaned_name = clean_html(raw_name)
             if not cleaned_name or cleaned_name.strip() == "":
                 print(f"🚨 [DEBUG] 상품명 변환 후에도 없음 → 원본 유지: {raw_name}")

@@ -20,8 +20,8 @@ COPY . .
 ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
-ENV DATABASE_URL=postgresql://postgres:OqKdQSYSTdyToHXTxvvIRHJBfYzcPivQ@postgres.railway.internal:5432/railway
+ENV DATABASE_URL=postgresql://ecommerce_db_dkop_user:A2M1JVJSGFLodIMDTUjbBcFs6fTwMg4c@dpg-cv0aedin91rc73fmndug-a/ecommerce_db_dkop
 ENV PORT=5000
 
 # 7️⃣ Gunicorn으로 실행 (배포 환경 최적화)
-CMD gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app
+CMD flask db upgrade && gunicorn -w 4 -b 0.0.0.0:${PORT:-5000} main:app
